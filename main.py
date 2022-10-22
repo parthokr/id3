@@ -51,8 +51,10 @@ class DecisionTree:
             # print(subtable)
             x = subtable.shape[0] - 1  # no of rows in subtable
             y = self.table.shape[0] - 1  # no of rows in master table
+            # print(x, y)
             prob_of_cat = x / y
             # print(prob_of_cat)
+            # print((subtable.shape[0]-1)/(self.table.shape[0] - 1))
             yes_in_subtable = 0
             for row in subtable:
                 if row[-1] == "Yes":
@@ -70,18 +72,15 @@ class DecisionTree:
             return {}
         root_index = np.argmin(self.entropies)
         categories = np.unique(self.table[1: self.table.shape[0], root_index])
-
+        # print(self.entropies)
         for category in categories:
             subtable = self.get_rows(category, root_index)
             # print(subtable)
-            yes_count = 0
-            no_count = 0
             yes_no = np.sort(np.unique(np.array([row[-1] for row in self.table[1:]])))  # useful to get over case issue
-            for row in subtable:
-                if row[-1] == yes_no[1]:
-                    yes_count += 1
-                elif row[-1] == yes_no[0]:
-                    no_count += 1
+
+            # # count frequency of yes and no in last col
+            yes_count = list(subtable[:, -1]).count(yes_no[1])
+            no_count = list(subtable[:, -1]).count(yes_no[0])
             # print(yes_count)
             # print(no_count)
             if yes_count == subtable.shape[0] - 1:
@@ -102,23 +101,23 @@ class DecisionTree:
     def get_tree(self):
         return self.tree
 
-    def _query(self, obj, parent, tree):
-        # if not isinstance(tree, dict):
-        #     print(parent)
-        #     return tree[parent]
-
-        for key in tree:
-            if isinstance(tree[key], dict):
-                print(key)
-                if obj[parent] == key:
-                    print('Match')
-                    self._query(obj, key, tree[key])
-            else:
-                if obj[parent] == key:
-                    return tree[parent]
-
-    def query(self, obj):
-        return self._query(obj, list(self.tree.keys())[0], self.tree)
+    # def _query(self, obj, parent, tree):
+    #     # if not isinstance(tree, dict):
+    #     #     print(parent)
+    #     #     return tree[parent]
+    #
+    #     for key in tree:
+    #         if isinstance(tree[key], dict):
+    #             print(key)
+    #             if obj[parent] == key:
+    #                 print('Match')
+    #                 self._query(obj, key, tree[key])
+    #         else:
+    #             if obj[parent] == key:
+    #                 return tree[parent]
+    #
+    # def query(self, obj):
+    #     return self._query(obj, list(self.tree.keys())[0], self.tree)
 
 
 dt = DecisionTree(input('Enter CSV path (default "data.csv"): ') or 'data.csv')
